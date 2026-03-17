@@ -1,4 +1,8 @@
-﻿# As stored credentials are profile specific, the credentials file will be stored in the user profile folder.
+﻿param(
+    [string]$OutputPath
+)
+
+# As stored credentials are profile specific, the credentials file will be stored in the user profile folder.
 $tennantListPath = "$env:USERPROFILE\Microsoft365CompanyCreds.csv"
 try {
     $tennants = Import-Csv $tennantListPath # Import the credential file so we can iterate through it.
@@ -58,9 +62,14 @@ $tennants | ForEach-Object { # Iterate through the credential file.
     }
 }
 $outputObject | format-table -AutoSize
-$outputPath = "$env:USERPROFILE\OneDrive - Clocktower Technology Services, Inc\Documents\Scripts\M365-Management\import_to_autotask_$(get-date -Format 'yyyyMMddTHHmmss').csv"
-$outputObject | Export-Csv -Path ($outputPath) -NoTypeInformation # Export the collection of objects to a CSV file suitable for import into Autotask.
-Write-Host "File written to $outputPath"
+
+# If the caller did not specify an output path, default to the current working directory.
+if (-not $OutputPath) {
+    $OutputPath = Join-Path -Path (Get-Location) -ChildPath ("import_to_autotask_{0:yyyyMMddTHHmmss}.csv" -f (Get-Date))
+}
+
+$outputObject | Export-Csv -Path $OutputPath -NoTypeInformation # Export the collection of objects to a CSV file suitable for import into Autotask.
+Write-Host "File written to $OutputPath"
 
 # To get mailbox permissions, use $mailbox | Get-MailboxPermission | where-object {$_.IsInherited -eq $False -and $_.User -ne 'NT AUTHORITY\SELF' -and $_.User -notlike 'S-1*'}
 # To get forwarding address, use $mailbox.ForwardingAddress
