@@ -44,9 +44,4 @@ $results = foreach ($mbx in Get-Mailbox -RecipientTypeDetails UserMailbox -Resul
 # Screen output (largest first)
 $results | Sort-Object PrimarySizeGB -Descending | Format-Table -AutoSize
 
-# CSV export
-$csvPath = Join-Path $env:USERPROFILE "Desktop\ExchangeMailboxSizes.csv"
-$results | Export-Csv -Path $csvPath -NoTypeInformation
-Write-Host "Report exported to $csvPath" -ForegroundColor Green
-
 Disconnect-ExchangeOnline -Confirm:$false
